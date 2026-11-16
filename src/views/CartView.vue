@@ -1,11 +1,32 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 
 const cart = useCartStore()
+const router = useRouter()
+const users = ref([])  
+const userId = ref('') 
 
-function checkout() {
-  alert('Дякуємо за замовлення!')
+onMounted(async () => {
+  const res = await fetch('/api/users')
+  users.value = await res.json()
+})
+
+async function checkout() {
+  for (const item of cart.items) {
+    await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId.value,
+        product: `${item.title} × ${item.qty}`,
+        amount: item.price * item.qty,
+      }),
+    })
+  }
   cart.clear()
+  router.push('/orders') 
 }
 </script>
 
@@ -36,8 +57,12 @@ function checkout() {
       </table>
       
       <h4>До сплати: {{ cart.totalPrice }} ₴</h4>
+      <select v-model="userId" class="form-select mb-3" style="max-width: 300px">
+        <option value="" disabled>Оберіть покупця</option>
+        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+      </select>
       <button class="btn btn-outline-secondary me-2" @click="cart.clear()">Очистити</button>
-      <button class="btn btn-success" @click="checkout()">Оформити замовлення</button>
+      <button class="btn btn-success" :disabled="!userId" @click="checkout">Оформити замовлення</button>
     </div>
   </div>
 </template>

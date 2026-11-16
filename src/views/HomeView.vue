@@ -5,7 +5,6 @@ import ProductCard from '@/components/ProductCard.vue'
 
 const search = ref('')
 
-// Лише ті товари, в назві яких є текст пошуку
 const filtered = computed(() =>
   products.filter(p => p.title.toLowerCase().includes(search.value.toLowerCase()))
 )

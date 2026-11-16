@@ -16,7 +16,7 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function remove(id: any) { // Додаємо тип any
+  function remove(id: any) { 
     items.value = items.value.filter((i: any) => i.id !== id)
   }
 
